@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		211D3CE51EAC89480076A757 /* LoginService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 211D3CE41EAC89480076A757 /* LoginService.swift */; };
+		211D3CE71EAC89780076A757 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 211D3CE61EAC89780076A757 /* User.swift */; };
+		211D3CE91EAC899A0076A757 /* Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 211D3CE81EAC899A0076A757 /* Utility.swift */; };
 		2129C2881EABA7830059ED37 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2129C2871EABA7830059ED37 /* AppDelegate.swift */; };
 		2129C28A1EABA7830059ED37 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2129C2891EABA7830059ED37 /* ViewController.swift */; };
 		2129C28D1EABA7840059ED37 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2129C28B1EABA7840059ED37 /* Main.storyboard */; };
@@ -34,6 +37,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		211D3CE41EAC89480076A757 /* LoginService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginService.swift; sourceTree = "<group>"; };
+		211D3CE61EAC89780076A757 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		211D3CE81EAC899A0076A757 /* Utility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utility.swift; sourceTree = "<group>"; };
 		2129C2841EABA7830059ED37 /* LoginApplication.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoginApplication.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2129C2871EABA7830059ED37 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2129C2891EABA7830059ED37 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -103,6 +109,9 @@
 				2129C28E1EABA7840059ED37 /* Assets.xcassets */,
 				2129C2901EABA7840059ED37 /* LaunchScreen.storyboard */,
 				2129C2931EABA7840059ED37 /* Info.plist */,
+				211D3CE41EAC89480076A757 /* LoginService.swift */,
+				211D3CE61EAC89780076A757 /* User.swift */,
+				211D3CE81EAC899A0076A757 /* Utility.swift */,
 			);
 			path = LoginApplication;
 			sourceTree = "<group>";
@@ -262,7 +271,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				211D3CE91EAC899A0076A757 /* Utility.swift in Sources */,
+				211D3CE71EAC89780076A757 /* User.swift in Sources */,
 				2129C28A1EABA7830059ED37 /* ViewController.swift in Sources */,
+				211D3CE51EAC89480076A757 /* LoginService.swift in Sources */,
 				2129C2881EABA7830059ED37 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -514,6 +526,7 @@
 				2129C2AE1EABA7840059ED37 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2129C2AF1EABA7840059ED37 /* Build configuration list for PBXNativeTarget "LoginApplicationTests" */ = {
 			isa = XCConfigurationList;
@@ -522,6 +535,7 @@
 				2129C2B11EABA7840059ED37 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2129C2B21EABA7840059ED37 /* Build configuration list for PBXNativeTarget "LoginApplicationUITests" */ = {
 			isa = XCConfigurationList;
@@ -530,6 +544,7 @@
 				2129C2B41EABA7840059ED37 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
