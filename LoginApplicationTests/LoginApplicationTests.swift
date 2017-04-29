@@ -28,12 +28,14 @@ class FakeLoginActionService: LoginActionService {
 
 class FakeFailureLoginService: LoginService {
     let error: LoginServiceError
+    var delegate: LoginActionService
     
-    init(error: LoginServiceError) {
+    init(error: LoginServiceError, delegate: LoginActionService) {
         self.error = error;
+        self.delegate = delegate
     }
-    func login(withUsername username: String, password: String, completion: (Result<User>) -> ()) {
-        completion(Result.failure(error))
+    func login(withUsername username: String?, password: String?) {
+        delegate.handle(error: error)
     }
 }
 
@@ -59,7 +61,7 @@ class LoginApplicationTests: XCTestCase {
         let actionDelegate = FakeLoginActionService()
 
         vcLogin.username.text = "p"
-        vcLogin.loginActionDelegate = actionDelegate
+        vcLogin.loginService = LoginServiceDelegate(delegate: actionDelegate)
         vcLogin.loginButton.sendActions(for: .touchUpInside)
         guard let receivedError = actionDelegate.error as? LoginFormValidationError else {
             XCTFail("Expected error of type LoginFormValidationError but got \(actionDelegate.error)")
@@ -75,7 +77,7 @@ class LoginApplicationTests: XCTestCase {
         
         vcLogin.username.text = "pritesh"
         vcLogin.password.text = "po"
-        vcLogin.loginActionDelegate = actionDelegate
+        vcLogin.loginService = LoginServiceDelegate(delegate: actionDelegate)
         vcLogin.loginButton.sendActions(for: .touchUpInside)
         guard let receivedError = actionDelegate.error as? LoginFormValidationError else {
             XCTFail("Expected error of type LoginFormValidationError but got \(actionDelegate.error)")
@@ -91,8 +93,7 @@ class LoginApplicationTests: XCTestCase {
         
         vcLogin.username.text = "pritesh"
         vcLogin.password.text = "poY7trl"
-        vcLogin.loginService = FakeFailureLoginService(error: .invalidCredentials)
-        vcLogin.loginActionDelegate = actionDelegate
+        vcLogin.loginService = FakeFailureLoginService(error: .invalidCredentials, delegate: actionDelegate)
         vcLogin.loginButton.sendActions(for: .touchUpInside)
         guard let receivedError = actionDelegate.error as? LoginServiceError else {
             XCTFail("Expected error of type LoginFormValidationError but got \(actionDelegate.error)")
@@ -108,7 +109,7 @@ class LoginApplicationTests: XCTestCase {
         
         vcLogin.username.text = "pritesh"
         vcLogin.password.text = "poytrl"
-        vcLogin.loginActionDelegate = actionDelegate
+        vcLogin.loginService = LoginServiceDelegate(delegate: actionDelegate)
         vcLogin.loginButton.sendActions(for: .touchUpInside)
         guard let receivedError = actionDelegate.error as? LoginFormValidationError else {
             XCTFail("Expected error of type LoginFormValidationError but got \(actionDelegate.error)")
@@ -124,8 +125,7 @@ class LoginApplicationTests: XCTestCase {
         
         vcLogin.username.text = "pritesh"
         vcLogin.password.text = "poY7trl"
-        vcLogin.loginService = FakeFailureLoginService(error: .nilData)
-        vcLogin.loginActionDelegate = actionDelegate
+        vcLogin.loginService = FakeFailureLoginService(error: .nilData, delegate: actionDelegate)
         vcLogin.loginButton.sendActions(for: .touchUpInside)
         guard let receivedError = actionDelegate.error as? LoginServiceError else {
             XCTFail("Expected error of type LoginFormValidationError but got \(actionDelegate.error)")
@@ -141,8 +141,7 @@ class LoginApplicationTests: XCTestCase {
         
         vcLogin.username.text = "pritesh"
         vcLogin.password.text = "poY7trl"
-        vcLogin.loginService = FakeFailureLoginService(error: .wrongStatusCode)
-        vcLogin.loginActionDelegate = actionDelegate
+        vcLogin.loginService = FakeFailureLoginService(error: .wrongStatusCode, delegate: actionDelegate)
         vcLogin.loginButton.sendActions(for: .touchUpInside)
         guard let receivedError = actionDelegate.error as? LoginServiceError else {
             XCTFail("Expected error of type LoginFormValidationError but got \(actionDelegate.error)")
@@ -152,71 +151,74 @@ class LoginApplicationTests: XCTestCase {
         XCTAssert(receivedError == LoginServiceError.wrongStatusCode, "The function handleError is called but the error received as the argument in the function is wrong, Expected the error of type \(LoginServiceError.wrongStatusCode) but got \(receivedError)")
     }
     
-    func testSuccessfullValidation() {
-        
-        let result: Result<Bool> = vcLogin.validate(userName: "pritesh", password: "aK8oio")
-        do {
-            let isSuccess = try result.resolve()
-            XCTAssertTrue(isSuccess, "Validate function restured false in result object whereas it was expected to be true")
-        }
-        catch (let error) {
-            XCTFail("Function validate returned error whereas it was expected to succeed. The error is \(error.localizedDescription)")
-        }
-    }
+// Test LoginService - Validation Function
     
+    func testSuccessfullValidation() {
+        let actionDelegate = FakeLoginActionService()
+
+        let loginService = LoginServiceDelegate(delegate: actionDelegate)
+        loginService.login(withUsername: "pritesh", password: "aK8oio")
+        
+        if !actionDelegate.isLoginSuccessFullCalled {
+            XCTFail("Function validate returned error whereas it was expected to succeed. The error is \(actionDelegate.error?.localizedDescription)")
+        }
+        
+        XCTAssertTrue(actionDelegate.isLoginSuccessFullCalled , "The function loginsuccessfull is not called.")
+        
+    }
+
     func testUsernameLengthValidation() {
         
-        let result: Result<Bool> = vcLogin.validate(userName: "p", password: "aK8oio")
-        do {
-            let _ = try result.resolve()
-            XCTFail("Expected error, but didn't get any")
+        let actionDelegate = FakeLoginActionService()
+        
+        let loginService = LoginServiceDelegate(delegate: actionDelegate)
+        loginService.login(withUsername: "p", password: "aK8oio")
+        
+        XCTAssertTrue(actionDelegate.isHandleErrorCalled , "The function handle error is not called.")
+        
+        guard let loginFormError = actionDelegate.error as? LoginFormValidationError else {
+            XCTFail("Expected error of type LoginFormValidationError but got \(actionDelegate.error)")
+            return
         }
-        catch (let error) {
-            guard let loginFormError = error as? LoginFormValidationError else {
-                XCTFail("Expected error of type LoginFormValidationError but got \(error)")
-                return
-            }
-            XCTAssert(loginFormError == LoginFormValidationError.invalidUsernameLength, "Expected validation error of type invalidUsernameLength but got \(loginFormError)")
-        }
+
+        XCTAssert(loginFormError == LoginFormValidationError.invalidUsernameLength, "Expected validation error of type invalidUsernameLength but got \(loginFormError)")
+
     }
-    
+
     func testPasswordLengthValidation() {
         
-        let result: Result<Bool> = vcLogin.validate(userName: "pritesh", password: "a")
-        do {
-            let _ = try result.resolve()
-            XCTFail("Expected error, but didn't get any")
+        let actionDelegate = FakeLoginActionService()
+        
+        let loginService = LoginServiceDelegate(delegate: actionDelegate)
+        loginService.login(withUsername: "pritesh", password: "a")
+        
+        XCTAssertTrue(actionDelegate.isHandleErrorCalled , "The function handle error is not called.")
+        
+        guard let loginFormError = actionDelegate.error as? LoginFormValidationError else {
+            XCTFail("Expected error of type LoginFormValidationError but got \(actionDelegate.error)")
+            return
         }
-        catch (let error) {
-            guard let loginFormError = error as? LoginFormValidationError else {
-                XCTFail("Expected error of type LoginFormValidationError but got \(error)")
-                return
-            }
-            XCTAssert(loginFormError == LoginFormValidationError.invalidPasswordLength, "Expected validation error of type invalidUsernameLength but got \(loginFormError)")
-        }
+        
+        XCTAssert(loginFormError == LoginFormValidationError.invalidPasswordLength, "Expected validation error of type invalidUsernameLength but got \(loginFormError)")
+
     }
-    
+
     func testPasswordCharacterValidation() {
         
-        let result: Result<Bool> = vcLogin.validate(userName: "pritesh", password: "abjkop")
-        do {
-            let _ = try result.resolve()
-            XCTFail("Expected error, but didn't get any")
+        let actionDelegate = FakeLoginActionService()
+        
+        let loginService = LoginServiceDelegate(delegate: actionDelegate)
+        loginService.login(withUsername: "pritesh", password: "abjkop")
+        
+        XCTAssertTrue(actionDelegate.isHandleErrorCalled , "The function handle error is not called.")
+        
+        guard let loginFormError = actionDelegate.error as? LoginFormValidationError else {
+            XCTFail("Expected error of type LoginFormValidationError but got \(actionDelegate.error)")
+            return
         }
-        catch (let error) {
-            guard let loginFormError = error as? LoginFormValidationError else {
-                XCTFail("Expected error of type LoginFormValidationError but got \(error)")
-                return
-            }
-            XCTAssert(loginFormError == LoginFormValidationError.invalidPasswordCharacters, "Expected validation error of type invalidUsernameLength but got \(loginFormError)")
-        }
-    }
-    
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
+        
+        XCTAssert(loginFormError == LoginFormValidationError.invalidPasswordCharacters, "Expected validation error of type invalidUsernameLength but got \(loginFormError)")
+
     }
     
 }
